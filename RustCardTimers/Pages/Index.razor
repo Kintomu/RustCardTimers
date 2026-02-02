@@ -1,0 +1,103 @@
+﻿@page "/"
+@inject RustCardTimers.Data.MonumentRepository Repo
+
+<h1>Card Rooms</h1>
+
+<p>
+    Resets at <b>3:00 AM</b> and <b>3:00 PM</b> (America/New_York).
+</p>
+
+@if (_rows is null)
+{
+    <p>Loading…</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Monument</th>
+                <th>Last Player</th>
+                <th>Last Swipe (UTC)</th>
+                <th>Elapsed</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var r in _rows)
+        {
+            var effective = GetEffectiveSwipeUtc(r.LastSwipeUtc);
+            var status = GetStatus(r.LastSwipeUtc);
+
+            <tr>
+                <td>@r.Name</td>
+                <td>@(r.LastPlayer ?? "—")</td>
+                <td>@(r.LastSwipeUtc?.ToString("yyyy-MM-dd HH:mm:ss") ?? "—")</td>
+                <td>@(effective is null ? "—" : FormatElapsed(DateTime.UtcNow - effective.Value))</td>
+                <td>@status</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IReadOnlyList<RustCardTimers.Data.MonumentRow>? _rows;
+    private DateTime _lastResetUtc;
+
+    private CancellationTokenSource? _cts;
+
+    protected override void OnInitialized()
+    {
+        _cts = new CancellationTokenSource();
+        _ = RunLoopAsync(_cts.Token);
+    }
+
+    private async Task RunLoopAsync(CancellationToken token)
+    {
+        // refresh DB every 5 seconds, repaint every 1 second
+        var lastDbFetch = DateTime.MinValue;
+
+        while (!token.IsCancellationRequested)
+        {
+            var now = DateTime.UtcNow;
+
+            if ((now - lastDbFetch) >= TimeSpan.FromSeconds(5))
+            {
+                _lastResetUtc = Repo.GetLastResetUtc();
+                _rows = Repo.GetAllMonuments();
+                lastDbFetch = now;
+            }
+
+            await InvokeAsync(StateHasChanged);
+
+            try { await Task.Delay(1000, token); }
+            catch (TaskCanceledException) { break; }
+        }
+    }
+
+    private DateTime? GetEffectiveSwipeUtc(DateTime? lastSwipeUtc)
+    {
+        if (lastSwipeUtc is null) return null;
+        return lastSwipeUtc.Value < _lastResetUtc ? null : lastSwipeUtc.Value;
+    }
+
+    private string GetStatus(DateTime? lastSwipeUtc)
+    {
+        if (lastSwipeUtc is null) return "Never";
+        if (lastSwipeUtc.Value < _lastResetUtc) return "Not run since reset";
+        return "Seen";
+    }
+
+    private static string FormatElapsed(TimeSpan ts)
+    {
+        if (ts < TimeSpan.Zero) ts = TimeSpan.Zero;
+        return $"{(int)ts.TotalHours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}";
+    }
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+}
