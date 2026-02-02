@@ -80,3 +80,4 @@ C:\Users\Kinto\Repos\RustCardTimers\RustCardTimers\obj\Debug\net9.0\refint\RustC
 C:\Users\Kinto\Repos\RustCardTimers\RustCardTimers\obj\Debug\net9.0\RustCardTimers.pdb
 C:\Users\Kinto\Repos\RustCardTimers\RustCardTimers\obj\Debug\net9.0\RustCardTimers.genruntimeconfig.cache
 C:\Users\Kinto\Repos\RustCardTimers\RustCardTimers\obj\Debug\net9.0\ref\RustCardTimers.dll
+C:\Users\Kinto\Repos\RustCardTimers\RustCardTimers\obj\Debug\net9.0\RustCardTimers.sourcelink.json

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RustCardTimers")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a53ab865a81d1c04a250f9a413e5a223ea79bc4")]
 [assembly: System.Reflection.AssemblyProductAttribute("RustCardTimers")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RustCardTimers")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
